@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <title>Atvirkštinio Aukso Pjūvio 3D Galerija</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        html { background-color: #050505; }
+        
+        body { 
+            margin: 0; overflow: hidden; background-color: #0a0a0a; 
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #050505 100%);
+            opacity: 0; transition: opacity 1.5s ease-in-out;
+        }
+
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #050505; background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+            z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .golden-box {
+            width: 161px; height: 100px; border: 2px solid #bda6ff; position: relative; 
+            animation: rotateGolden 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 0 20px rgba(189, 166, 255, 0.2);
+        }
+        .golden-box::after {
+            content: ''; position: absolute; top: 0; right: 0; width: 100px; height: 100px; border-left: 2px solid #bda6ff;
+        }
+        @keyframes rotateGolden {
+            0% { transform: rotate(0deg) scale(0.8); opacity: 0.5; }
+            50% { transform: rotate(180deg) scale(1); opacity: 1; box-shadow: 0 0 40px rgba(189, 166, 255, 0.6); }
+            100% { transform: rotate(360deg) scale(0.8); opacity: 0.5; }
+        }
+
+        #preloader-text { font-family: 'Cinzel', serif; color: #bda6ff; margin-top: 30px; letter-spacing: 4px; font-size: 1.2rem; text-transform: uppercase; }
+
+        #vignette { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; 
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(60, 15, 120, 0.35) 100%); 
+            opacity: 0; z-index: 5; 
+        }
+        
+        #white-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: #ffffff; opacity: 0; z-index: 9990; transition: opacity 3s ease-in-out; }
+
+        #back-btn {
+            position: absolute; top: 30px; left: 40px; color: #ffffff; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 0.8rem; text-transform: uppercase;
+            letter-spacing: 2px; padding: 12px 25px; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 30px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); z-index: 20; transition: all 0.3s ease; cursor: pointer;
+        }
+        #back-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.5); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        #ui-bar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); padding: 12px 35px; border-radius: 40px; color: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; z-index: 10; transition: opacity 1.5s ease, transform 1.5s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .ui-title { font-family: 'Cinzel', serif; letter-spacing: 3px; font-weight: 600; color: #bda6ff; text-transform: uppercase; }
+        .ui-divider { width: 1px; height: 20px; background: rgba(255, 255, 255, 0.2); }
+        .ui-key { background: rgba(255, 255, 255, 0.15); padding: 4px 10px; border-radius: 6px; font-weight: 600; margin: 0 4px; }
+        .ui-hint { color: #b4b4b4; letter-spacing: 1px; }
+
+        /* --- AUKSO PJŪVIO LIGHTBOX (IŠŠOKANTIS EKRANAS) --- */
+        #lightbox { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(5, 5, 5, 0.95); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; opacity: 0; 
+            transition: opacity 0.5s ease; backdrop-filter: blur(20px); 
+        }
+
+        #lightbox-close { 
+            position: absolute; top: 2.618rem; right: 4.236rem; /* Auksinės paraštės */
+            color: #ffffff; font-size: 2.618rem; font-family: 'Inter', sans-serif; 
+            font-weight: 300; cursor: pointer; user-select: none; 
+            transition: color 0.3s ease, transform 0.3s ease; z-index: 1001; 
+        }
+        #lightbox-close:hover { color: #bda6ff; transform: scale(1.1); }
+
+        #lightbox-content { 
+            display: flex; 
+            width: 90vw; /* Apribojame plotį */
+            height: calc(90vw / 1.61803); /* Aukštis apskaičiuojamas taip, kad visas langas būtų idealus Aukso Stačiakampis! */
+            max-height: 85vh; /* Apsauga mažesniems ekranams */
+            max-width: calc(85vh * 1.61803); /* Apsauga labai platiems ekranams */
+            background: #0a0a0a; border: 1px solid rgba(189, 166, 255, 0.15); 
+            border-radius: 4px; overflow: hidden; 
+            box-shadow: 0 20px 80px rgba(90, 20, 160, 0.4); pointer-events: auto; 
+        }
+
+        /* 61.8% erdvės tenka paveikslui */
+        #lightbox-left { 
+            flex: 1.618033; 
+            display: flex; justify-content: center; align-items: center; 
+            background: #050505; position: relative; 
+            padding: 2.618rem;
+        }
+        #lightbox-left img { 
+            width: 100%; height: 100%; object-fit: contain; 
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
+        }
+
+        /* 38.2% erdvės tenka tekstui */
+        #lightbox-right { 
+            flex: 1; 
+            min-width: 300px; 
+            padding: 4.236rem 2.618rem; /* Padding'ai pagal Phi progresiją */
+            display: flex; flex-direction: column; justify-content: center; 
+            border-left: 1px solid rgba(255,255,255,0.05); background: #0c0c0c; 
+            overflow-y: auto; 
+        }
+
+        #lightbox-title { 
+            font-family: 'Cinzel', serif; 
+            font-size: 2.618rem; /* Auksinė tipografija */
+            font-weight: 400; color: #ffffff; margin: 0 0 1rem 0; 
+            letter-spacing: 3px; 
+        }
+
+        /* Dekoratyvinė aukso pjūvio linija */
+        #lightbox-divider {
+            width: 61.8%; /* Linija baigiasi ties aukso pjūviu */
+            height: 1px;
+            background: linear-gradient(90deg, #bda6ff 0%, transparent 100%);
+            margin-bottom: 1.618rem;
+        }
+
+        #lightbox-desc { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 1rem; 
+            color: #a0a0a0; 
+            line-height: 1.618; /* Auksinis eilučių aukštis */
+            font-weight: 300; margin: 0; 
+        }
+
+        @media (max-width: 900px) { 
+            #lightbox-content { flex-direction: column; height: 90vh; max-height: none; max-width: 90vw; } 
+            #lightbox-left { flex: 1.618; padding: 1rem; } 
+            #lightbox-right { flex: 1; padding: 2.618rem; border-left: none; border-top: 1px solid rgba(255,255,255,0.05); } 
+        }
+    </style>
+</head>
+<body>
+    <div id="preloader"><div class="golden-box"></div><div id="preloader-text" style="display: none;"></div></div>
+    <div id="white-fade"></div>
+    <div id="vignette"></div>
+    <a href="index.html" id="back-btn">← Pradžia</a>
+    
+    <div id="ui-bar">
+        <div class="ui-title">Aukso Pjūvis</div><div class="ui-divider"></div>
+        <div class="ui-hint" id="ui-hint-text">Laikykite <span class="ui-key">W</span> pirmyn (+<span class="ui-key">SHIFT</span>) / <span class="ui-key">S</span> atgal</div>
+        <div class="ui-divider"></div><div class="ui-hint">Valdykite žvilgsnį pele</div>
+    </div>
+
+    <div id="lightbox">
+        <div id="lightbox-close">×</div>
+        <div id="lightbox-content">
+            <div id="lightbox-left"><img id="lightbox-img" src="" alt="Pilnas piešinys"></div>
+            <div id="lightbox-right">
+                <h2 id="lightbox-title">Pavadinimas</h2>
+                <div id="lightbox-divider"></div>
+                <p id="lightbox-desc">Aprašymas</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/BokehShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BokehPass.js"></script>
+
+    <script>
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x050505, 0.0002); 
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500000);
+        camera.position.set(0, 0, 0); 
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.NoToneMapping; 
+        document.body.appendChild(renderer.domElement);
+
+        const renderScene = new THREE.RenderPass(scene, camera);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.85; 
+        bloomPass.strength = 0.35;  
+        bloomPass.radius = 0.5;
+
+        const bokehPass = new THREE.BokehPass(scene, camera, {
+            focus: 40, 
+            aperture: 0, 
+            maxblur: 0.003 
+        });
+
+        const oldBokehRender = bokehPass.render.bind(bokehPass);
+        bokehPass.render = function(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+            if (typeof planes !== 'undefined') {
+                planes.forEach(p => {
+                    if(p.userData.glowPlane) {
+                        p.userData.glowPlane.userData.wasVisible = p.userData.glowPlane.visible;
+                        p.userData.glowPlane.visible = false; 
+                    }
+                });
+            }
+            oldBokehRender(renderer, writeBuffer, readBuffer, deltaTime, maskActive);
+            if (typeof planes !== 'undefined') {
+                planes.forEach(p => {
+                    if(p.userData.glowPlane) {
+                        p.userData.glowPlane.visible = p.userData.glowPlane.userData.wasVisible;
+                    }
+                });
+            }
+        };
+
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+        composer.addPass(bokehPass); 
+
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+        const backgroundSound = new THREE.Audio(listener);
+        const hoverSound = new THREE.Audio(listener);
+
+        const manager = new THREE.LoadingManager();
+        manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+            const el = document.getElementById('preloader-text');
+            if(el) {
+                el.style.display = 'block';
+                el.innerText = 'Kraunama ' + Math.floor((itemsLoaded / itemsTotal) * 100) + '%';
+            }
+        };
+        manager.onLoad = function () {
+            const preloader = document.getElementById('preloader');
+            preloader.style.opacity = '0';
+            document.body.style.opacity = '1';
+            setTimeout(() => { preloader.style.display = 'none'; }, 1000);
+        };
+
+        const audioLoader = new THREE.AudioLoader(manager);
+        audioLoader.load('audio/ambient.m4a', function(buffer) {
+            backgroundSound.setBuffer(buffer);
+            backgroundSound.setLoop(true);
+            backgroundSound.setVolume(0.4);
+        });
+
+        audioLoader.load('audio/select.m4a', function(buffer) {
+            hoverSound.setBuffer(buffer);
+            hoverSound.setVolume(0.3); 
+        });
+
+        let audioStarted = false;
+        function initAudio() {
+            if (!audioStarted && backgroundSound.buffer) {
+                if(listener.context.state === 'suspended') listener.context.resume();
+                backgroundSound.play();
+                audioStarted = true;
+            }
+        }
+        window.addEventListener('keydown', initAudio);
+        window.addEventListener('click', initAudio);
+
+        const PHI = 1.61803398875;
+        const aspect = window.innerWidth / window.innerHeight;
+        const w = PHI; const h = 1;
+        
+        let rx = -w / 2, ry = h / 2, rw = w, rh = h;
+        const squares2D = new Array();
+        for(let i = 0; i < 10; i++) {
+            let size, cx, cy, dir = i % 4;
+            if(dir === 0) { size = rh; cx = rx + size/2; cy = ry - size/2; rx += size; rw -= size; } 
+            else if(dir === 1) { size = rw; cx = rx + size/2; cy = ry - size/2; ry -= size; rh -= size; } 
+            else if(dir === 2) { size = rh; cx = rx + rw - size/2; cy = ry - size/2; rw -= size; } 
+            else if(dir === 3) { size = rw; cx = rx + size/2; cy = ry - rh + size/2; rh -= size; }
+            squares2D.push({ x: cx, y: cy, size: size });
+        }
+
+        let ex = -w / 2, ey = h / 2, ew = w, eh = h, eyeX = 0, eyeY = 0;
+        for(let i = 0; i < 50; i++) {
+            let size, dir = i % 4;
+            if(dir === 0) { size = eh; eyeX = ex + size/2; eyeY = ey - size/2; ex += size; ew -= size; } 
+            else if(dir === 1) { size = ew; eyeX = ex + size/2; eyeY = ey - size/2; ey -= size; eh -= size; } 
+            else if(dir === 2) { size = eh; eyeX = ex + ew - size/2; eyeY = ey - size/2; ew -= size; } 
+            else if(dir === 3) { size = ew; eyeX = ex + size/2; eyeY = ey - eh + size/2; eh -= size; }
+        }
+
+        function createPictureGlowTexture() {
+            const c = document.createElement('canvas');
+            c.width = 512; c.height = 512;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createRadialGradient(256, 256, 20, 256, 256, 256);
+            grad.addColorStop(0, 'rgba(189, 166, 255, 1)');   
+            grad.addColorStop(0.3, 'rgba(140, 100, 255, 0.6)'); 
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');           
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,512,512);
+            return new THREE.CanvasTexture(c);
+        }
+        const picGlowTex = createPictureGlowTexture();
+
+        const textureLoader = new THREE.TextureLoader(manager);
+        const planes = new Array();
+        const fovRad = THREE.MathUtils.degToRad(camera.fov / 2);
+        const scaleFit = Math.max(aspect / w, 1 / h); 
+        const GLOBAL_SCALE = 0.35; const Z_START = -30; 
+
+        const portfolioDuomenys = [
+            { title: "01", desc: "Viskas prasidėjo nuo tuštumos ir noro joje palikti pėdsaką. Čia, priešais tave, yra vienas iš mano pėdsakų." },
+            { title: "02", desc: "Iš pradžių mano kūryba buvo visiškai monotoniška. Piešiau tai, ką jaučiau, be jokios struktūros, tą patį po to pačio. Jaučiausi lyg pasiklydęs be kompaso tuščioje erdvėje." },
+            { title: "03", desc: "Mano atramos taškas atsirado skaitmeniniame pasaulyje. Pakeitęs pieštuką į kodą ir pikselius, atradau erdvę, kurioje ribas nustato tik mano paties žinios. Skaitmeninis pasaulis tapo drobe be pabaigos, tačiau begalybė gali bauginti, jei neturi žemėlapio." },
+            { title: "04", desc: "Supratau, kad norint suvaldyti šią skaitmeninę begalybę, vien jausmo neužtenka. Pradėjau ieškoti taisyklių, kurios padėtų vizualizuoti tai, kas akivaizdžiai nėra matoma." },
+            { title: "05", desc: "Aukso pjūvis - Phi (ϕ, 1.618). Tai nėra tiesiog skaičius. Tai yra gamtos algoritmas, pagal kurį sukasi galaktikos, auga medžių lapai ir formuojasi žmogaus kūnas." },
+            { title: "06", desc: "Ši galerija, kurioje dabar naršai, nėra tiesiog paveikslėlių rinkinys. Kiekvienas atstumas, kiekvienas pasaulio dydis, kiekviena linija yra griežtai apskaičiuota." },
+            { title: "07", desc: "Kiekvienas pasaulis turi savo svorį ir prasmę. Nors iš pirmo žvilgsnio erdvėje jie gali atrodyti išmėtyti atsitiktinai, jie visi laukia, kol ras savo vietą." },
+            { title: "08", desc: "Kiekvienas baigtas darbas yra atsispirimo taškas naujam, didesniam ciklui. Harmonija nėra ramybės būsena, tai subalansuotas augimas." },
+            { title: "09", desc: "Interneto menas yra unikalus tuo, kad jis neegzistuoja be tavęs. Tavo smalsumas, tavo sprendimas eiti pirmyn atgaivina šią erdvę." },
+            { title: "10", desc: "Ši visata dar nėra išbaigta, pasauliai išbarstyti. Tuoj pasieksi begalybės pabaigą. Prašau, paimk šias planetas ir atkurk harmoniją. Atkūręs šią tvarką suprasi, kad pabaigos nėra. Kiekviena pabaiga tėra nauja pradžia." }
+        ];
+
+        squares2D.forEach((sq, i) => {
+            const zDepth = Z_START * Math.pow(PHI, i); 
+            const visibleHeight = 2 * Math.abs(zDepth) * Math.tan(fovRad);
+            const x3D = sq.x * visibleHeight * scaleFit * GLOBAL_SCALE;
+            const y3D = sq.y * visibleHeight * scaleFit * GLOBAL_SCALE;
+            const size3D = sq.size * visibleHeight * scaleFit * GLOBAL_SCALE;
+            const pos = new THREE.Vector3(x3D, y3D, zDepth);
+            
+            const thumbPath = "thumbs/" + (i + 1) + ".jpg"; 
+            const fullPath = "full/" + (i + 1) + ".jpg"; 
+
+            const geometry = new THREE.PlaneGeometry(size3D, size3D);
+            const material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, transparent: true, opacity: 1 });
+            const plane = new THREE.Mesh(geometry, material);
+            plane.position.copy(pos);
+            
+            plane.renderOrder = 2; 
+
+            const glowMat = new THREE.MeshBasicMaterial({
+                map: picGlowTex, transparent: true, opacity: 0, 
+                blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide
+            });
+            const glowPlane = new THREE.Mesh(new THREE.PlaneGeometry(size3D * 2, size3D * 2), glowMat);
+            glowPlane.position.set(0, 0, -0.5); 
+            
+            glowPlane.visible = false; 
+            glowPlane.renderOrder = 2; 
+            plane.add(glowPlane); 
+            
+            plane.userData = { 
+                imgPath: fullPath, originalRot: new THREE.Quaternion().copy(plane.quaternion), glowPlane: glowPlane, 
+                title: portfolioDuomenys[i] ? portfolioDuomenys[i].title : ("Kūrinys " + (i+1)), 
+                desc: portfolioDuomenys[i] ? portfolioDuomenys[i].desc : "Aprašymo nėra."
+            };
+
+            textureLoader.load(thumbPath, function(texture) {
+                material.map = texture; material.needsUpdate = true;
+                const imgAspect = texture.image.width / texture.image.height;
+                let finalWidth = size3D, finalHeight = size3D;
+                if (imgAspect > 1) { finalHeight = size3D / imgAspect; } else { finalWidth = size3D * imgAspect; }
+                
+                plane.geometry.dispose(); plane.geometry = new THREE.PlaneGeometry(finalWidth, finalHeight);
+                glowPlane.geometry.dispose(); glowPlane.geometry = new THREE.PlaneGeometry(finalWidth * 1.8, finalHeight * 1.8);
+            });
+            scene.add(plane); planes.push(plane);
+        });
+
+        const ambientLight = new THREE.AmbientLight(0x222233); scene.add(ambientLight);
+        const spaceMaterials = new Array();
+
+        const finaleDist = 1200; 
+        const visH_finale = 2 * finaleDist * Math.tan(fovRad);
+        const finaleMultiplier = visH_finale * scaleFit * GLOBAL_SCALE;
+
+        const planetGroup = new THREE.Group();
+        planetGroup.position.set(0, 0, -6000); 
+        
+        const orbitsData = []; 
+        let currentRadius = 6000; 
+
+        for(let i = 1; i <= 7; i++) {
+            const gap = 5000 + (1500 * Math.pow(PHI, i * 0.35));
+            currentRadius += gap;
+            const radius = currentRadius;
+
+            const orbitCurve = new THREE.EllipseCurve(0, 0, radius, radius);
+            const orbitPoints = orbitCurve.getPoints(128);
+            const orbitGeo = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+            const orbitMat = new THREE.LineBasicMaterial({ color: 0x5a14a0, transparent: true, opacity: 0, depthWrite: false, depthTest: false });
+            const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+            orbitLine.rotation.x = Math.PI / 2;
+            orbitLine.rotation.y = (Math.random() - 0.5) * 0.15;
+            orbitLine.frustumCulled = false; 
+            orbitLine.renderOrder = 0; 
+
+            const trackGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-20000, 0, 0), new THREE.Vector3(20000, 0, 0)]);
+            const trackMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, depthTest: false });
+            const trackLine = new THREE.Line(trackGeo, trackMat);
+            trackLine.visible = false;
+            trackLine.renderOrder = 0;
+            
+            const planetTex = textureLoader.load('planets/' + i + '.png');
+            const planetMat = new THREE.SpriteMaterial({ map: planetTex, transparent: true, opacity: 0, depthWrite: false, fog: false });
+            const planetSprite = new THREE.Sprite(planetMat);
+            planetSprite.frustumCulled = false; 
+            planetSprite.renderOrder = i + 10; 
+
+            const pGlowMat = new THREE.SpriteMaterial({ map: picGlowTex, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+            const pGlowSprite = new THREE.Sprite(pGlowMat);
+            pGlowSprite.visible = false;
+            pGlowSprite.renderOrder = i + 5; 
+            
+            const theta = (i / 10) * Math.PI * 2 + (Math.random());
+            const yPos = (Math.random() - 0.5) * 4000; 
+            
+            planetSprite.position.set(radius * Math.cos(theta), yPos, radius * Math.sin(theta));
+            
+            const scale = 2000 + Math.random() * 4000;
+            planetSprite.scale.set(scale, scale, 1);
+            
+            const orbitSpeed = 0.0001 / Math.pow(PHI, i * 0.2) * (i % 2 === 0 ? 1 : -1);
+
+            const targetX = squares2D[i-1].x * finaleMultiplier;
+            const targetY = squares2D[i-1].y * finaleMultiplier;
+            const targetSize = squares2D[i-1].size * finaleMultiplier;
+
+            planetSprite.userData = {
+                targetX: targetX,
+                targetY: targetY,
+                targetSize: targetSize,
+                isLocked: false,
+                isAnimatingToTarget: false 
+            };
+
+            const singleOrbitGroup = new THREE.Group();
+            singleOrbitGroup.add(orbitLine);  
+            singleOrbitGroup.add(planetSprite); 
+            singleOrbitGroup.add(trackLine);  
+            singleOrbitGroup.add(pGlowSprite);
+            
+            planetGroup.add(singleOrbitGroup);
+
+            const orbitDataObj = { 
+                group: singleOrbitGroup, 
+                speed: orbitSpeed, 
+                lineMat: orbitMat, 
+                sprite: planetSprite, 
+                trackLine: trackLine,
+                glowSprite: pGlowSprite,
+                targetX: targetX, 
+                targetY: targetY,
+                targetSize: targetSize,
+                originalRadius: radius,
+                originalY: yPos, 
+                orbitLine: orbitLine,
+                index: i - 1 
+            };
+
+            orbitsData.push(orbitDataObj);
+            
+            spaceMaterials.push({ mat: planetMat, maxOp: 1.0, type: 'basic' });
+        }
+        scene.add(planetGroup);
+
+        const guideLines = new THREE.Group();
+        const guideMat = new THREE.LineBasicMaterial({ 
+            color: 0xffffff, 
+            transparent: true, 
+            opacity: 0, 
+            blending: THREE.AdditiveBlending 
+        });
+
+        for(let i = 0; i < 10; i++) {
+            const sq = squares2D[i];
+            const w_ = sq.size * finaleMultiplier;
+            const h_ = sq.size * finaleMultiplier;
+            const rectGeo = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(-w_/2, -h_/2, 0), new THREE.Vector3(w_/2, -h_/2, 0),
+                new THREE.Vector3(w_/2, h_/2, 0), new THREE.Vector3(-w_/2, h_/2, 0),
+                new THREE.Vector3(-w_/2, -h_/2, 0)
+            ]);
+            const rectLine = new THREE.Line(rectGeo, guideMat.clone());
+            rectLine.position.set(sq.x * finaleMultiplier, sq.y * finaleMultiplier, 0);
+            rectLine.userData = { flash: 0 }; 
+            guideLines.add(rectLine);
+        }
+        guideLines.visible = false;
+        scene.add(guideLines);
+
+        const flatSpiralPoints = new Array();
+        squares2D.forEach((sq, index) => {
+            let s = sq.size, cx, cy, dir = index % 4;
+            if(dir === 0) { cx = sq.x + s/2; cy = sq.y - s/2; } else if(dir === 1) { cx = sq.x - s/2; cy = sq.y - s/2; } 
+            else if(dir === 2) { cx = sq.x - s/2; cy = sq.y + s/2; } else if(dir === 3) { cx = sq.x + s/2; cy = sq.y + s/2; }
+            let startAngle = Math.PI - index * (Math.PI / 2), endAngle = Math.PI - (index + 1) * (Math.PI / 2);
+            for(let j = 0; j <= 32; j++) {
+                if (index > 0 && j === 0) continue; 
+                let angle = startAngle + (endAngle - startAngle) * (j / 32);
+                flatSpiralPoints.push({ x: cx + Math.cos(angle) * s, y: cy + Math.sin(angle) * s });
+            }
+        });
+        const flatSpiralGeoPoints = new Array();
+        const flatZ = Z_START + 0.05, flatVisibleHeight = 2 * Math.abs(flatZ) * Math.tan(fovRad);
+        flatSpiralPoints.forEach(function(p) { flatSpiralGeoPoints.push(new THREE.Vector3(p.x * flatVisibleHeight * scaleFit * GLOBAL_SCALE, p.y * flatVisibleHeight * scaleFit * GLOBAL_SCALE, flatZ)); });
+        
+        const flatSpiralLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(flatSpiralGeoPoints), new THREE.LineBasicMaterial({ color: 0xccb3ff, transparent: true, opacity: 1, depthWrite: false }));
+        flatSpiralLine.renderOrder = 3; 
+        scene.add(flatSpiralLine);
+
+        const spiralPoints = new Array();
+        planes.forEach(p => spiralPoints.push(p.position.clone()));
+        const spiralCurve = new THREE.CatmullRomCurve3(spiralPoints, false, 'catmullrom', 0.5);
+        const spiralLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(spiralCurve.getPoints(1000)), new THREE.LineBasicMaterial({ color: 0xddccff, transparent: true, opacity: 0, depthWrite: false }));
+        scene.add(spiralLine);
+
+        const slopeX = -(eyeX * 2 * Math.tan(fovRad) * scaleFit * GLOBAL_SCALE);
+        const slopeY = -(eyeY * 2 * Math.tan(fovRad) * scaleFit * GLOBAL_SCALE);
+        const pathPoints = new Array(), floorPoints = new Array();
+        const lastZ = Math.abs(planes.slice(-1).shift().position.z) + 60;
+        const floorDepth = 1.0; 
+        for (let i = 0; i <= 200; i++) {
+            const z = -((i / 200) * lastZ);
+            pathPoints.push(new THREE.Vector3(z * slopeX, z * slopeY, z));
+            floorPoints.push(new THREE.Vector3(z * slopeX, z * slopeY - floorDepth, z));
+        }
+        const camCurve = new THREE.CatmullRomCurve3(pathPoints);
+        const floorLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(new THREE.CatmullRomCurve3(floorPoints).getPoints(500)), new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0, depthWrite: false }));
+        scene.add(floorLine);
+
+        const starsGeometry = new THREE.BufferGeometry();
+        const pointsArray = new Array();
+        for(let i = 0; i < 4000; i++) { 
+            pointsArray.push((Math.random() - 0.5) * 12000, (Math.random() - 0.5) * 12000, (Math.random() - 0.5) * 12000 - 1000); 
+        }
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(pointsArray, 3));
+        const starsMaterial = new THREE.PointsMaterial({ 
+            color: 0xffffff, size: 4.5, transparent: true, opacity: 0, depthWrite: false
+        });
+        const starField = new THREE.Points(starsGeometry, starsMaterial);
+        starField.frustumCulled = false; 
+        scene.add(starField); 
+        spaceMaterials.push({ mat: starsMaterial, maxOp: 0.9, type: 'basic' });
+
+        function createNebulaTexture(r, g, b) {
+            const c = document.createElement('canvas');
+            c.width = 256; c.height = 256;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+            grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.8)`);
+            grad.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.2)`);
+            grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,256,256);
+            return new THREE.CanvasTexture(c);
+        }
+        const nebulaTex1 = createNebulaTexture(90, 20, 160); 
+        const nebulaTex2 = createNebulaTexture(20, 100, 180); 
+        const nebulaTex3 = createNebulaTexture(160, 20, 80);  
+        const nebulaTextures = [nebulaTex1, nebulaTex2, nebulaTex3];
+        
+        const nebulaGroup = new THREE.Group();
+        for(let i = 0; i < 100; i++) {
+            const mat = new THREE.SpriteMaterial({ map: nebulaTextures[i % 3], transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+            const sprite = new THREE.Sprite(mat);
+            const radius = 1000 + Math.random() * 3000;
+            const theta = Math.random() * Math.PI * 2;
+            const yPos = (Math.random() - 0.5) * 2000;
+            sprite.position.set(radius * Math.cos(theta), yPos, radius * Math.sin(theta) - 1000);
+            const scale = 800 + Math.random() * 1500;
+            sprite.scale.set(scale, scale, 1);
+            sprite.frustumCulled = false;
+            nebulaGroup.add(sprite);
+            
+            spaceMaterials.push({ mat: mat, maxOp: 0.15 + Math.random() * 0.15, type: 'basic' });
+        }
+        scene.add(nebulaGroup);
+
+        const dustGeometry = new THREE.BufferGeometry();
+        const dustCount = 3000; 
+        const dustPoints = new Float32Array(dustCount * 3);
+        for(let i = 0; i < dustCount; i++) {
+            dustPoints[i * 3] = (Math.random() - 0.5) * 3000;
+            dustPoints[i * 3 + 1] = (Math.random() - 0.5) * 3000;
+            dustPoints[i * 3 + 2] = (Math.random() - 0.5) * 8000; 
+        }
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPoints, 3));
+        const dustMaterial = new THREE.PointsMaterial({
+            color: 0xffffff, size: 1.5, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false
+        });
+        const dustField = new THREE.Points(dustGeometry, dustMaterial);
+        scene.add(dustField); 
+        spaceMaterials.push({ mat: dustMaterial, maxOp: 0.8, type: 'basic' });
+
+        let progress = 0, isMovingForward = false, isMovingBackward = false, hasStarted = false, illusionBreak = 0, isReturning = false; 
+        let isFinale = false, isDragging = false, draggedPlanet = null, draggedPlanetData = null, isTransitioning = false;
+        let isSprinting = false; 
+        let flipProgress = 0; 
+
+        const mouse = new THREE.Vector2(); let targetMouseX = 0, targetMouseY = 0, currentMouseX = 0, currentMouseY = 0;
+
+        function checkPuzzleCompletion() {
+            if (isTransitioning) return;
+            const allLocked = orbitsData.every(o => o.sprite.userData.isLocked);
+            if (allLocked) {
+                setTimeout(() => {
+                    isTransitioning = true;
+                }, 1200); 
+            }
+        }
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            targetMouseX = mouse.x; targetMouseY = mouse.y;
+
+            if (isFinale && isDragging && draggedPlanet && !draggedPlanet.userData.isLocked && !draggedPlanet.userData.isAnimatingToTarget) {
+                const vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                vector.unproject(camera);
+                const dir = vector.sub(camera.position).normalize();
+                
+                const planeZ = camera.position.z - finaleDist;
+                const distance = (planeZ - camera.position.z) / dir.z; 
+                const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+                
+                draggedPlanet.position.x = pos.x - planetGroup.position.x;
+                
+                if (draggedPlanetData) {
+                    draggedPlanetData.glowSprite.position.x = draggedPlanet.position.x;
+                }
+            }
+        });
+
+        window.addEventListener('mousedown', () => {
+            if (!isFinale || isTransitioning) return;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(orbitsData.map(o => o.sprite));
+            
+            if (intersects.length > 0) {
+                intersects.sort((a, b) => b.object.renderOrder - a.object.renderOrder);
+                
+                for (let i = 0; i < intersects.length; i++) {
+                    const hitSprite = intersects[i].object;
+                    
+                    const worldPos = new THREE.Vector3();
+                    hitSprite.getWorldPosition(worldPos);
+                    const distToCenter = worldPos.distanceTo(intersects[i].point);
+                    
+                    // Tikslus ir realistiškas paspaudimo laukas
+                    if (distToCenter > hitSprite.scale.x * 0.45) continue; 
+
+                    if (!hitSprite.userData.isLocked && !hitSprite.userData.isAnimatingToTarget) {
+                        isDragging = true;
+                        draggedPlanet = hitSprite;
+                        draggedPlanetData = orbitsData.find(o => o.sprite === hitSprite);
+                        
+                        draggedPlanetData.trackLine.material.color.setHex(0xbda6ff);
+                        draggedPlanetData.trackLine.material.opacity = 0.6;
+
+                        document.body.style.cursor = 'grabbing';
+                        break; 
+                    }
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (draggedPlanetData && !draggedPlanet.userData.isLocked) {
+                draggedPlanetData.trackLine.material.color.setHex(0xffffff);
+                draggedPlanetData.trackLine.material.opacity = 0.05;
+            }
+
+            if (isFinale && isDragging && draggedPlanet) {
+                const diff = Math.abs(draggedPlanet.position.x - draggedPlanet.userData.targetX);
+                if (diff < (100 * scaleFit)) { 
+                    draggedPlanet.userData.isLocked = true;
+                    draggedPlanet.userData.isAnimatingToTarget = true; 
+                    
+                    if(draggedPlanetData) {
+                        draggedPlanetData.trackLine.material.opacity = 0; 
+                        const rectLine = guideLines.children[draggedPlanetData.index];
+                        if (rectLine) rectLine.userData.flash = 0.8;
+                    }
+
+                    if (audioStarted && hoverSound.buffer && !hoverSound.isPlaying) hoverSound.play();
+                    checkPuzzleCompletion();
+                }
+            }
+            isDragging = false;
+            draggedPlanet = null;
+            draggedPlanetData = null;
+            document.body.style.cursor = 'default';
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if(isFinale || isTransitioning) return; 
+            const key = e.key.toLowerCase();
+            if (key === 'w') isMovingForward = true;
+            if (key === 's') isMovingBackward = true;
+            if (key === 'shift') isSprinting = true; 
+            if (['w', 's'].includes(key) && !hasStarted && !isReturning) {
+                hasStarted = true;
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w') isMovingForward = false;
+            if (key === 's') isMovingBackward = false;
+            if (key === 'shift') isSprinting = false; 
+        });
+
+        document.getElementById('back-btn').addEventListener('click', function(e) {
+            e.preventDefault(); if(isReturning || isFinale || isTransitioning) return; isReturning = true;
+            document.body.style.opacity = '0';
+            setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+        });
+
+        const raycaster = new THREE.Raycaster();
+        let currentLookTarget = new THREE.Vector3(0, 0, -10);
+        const particleDirection = new THREE.Vector3(slopeX, slopeY, 1).normalize();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (isTransitioning) {
+                flipProgress += 0.007; 
+
+                if (flipProgress <= 0.3) {
+                    // Dingsta planetos, schema lieka
+                    spaceMaterials.forEach(item => { 
+                        item.mat.opacity = THREE.MathUtils.lerp(item.mat.opacity, 0, 0.06); 
+                    });
+                    
+                    camera.position.x += (currentMouseX * 50 - camera.position.x) * 0.05;
+                    camera.position.y += (currentMouseY * 50 - camera.position.y) * 0.05;
+                    camera.lookAt(camera.position.x, camera.position.y, camera.position.z - 100);
+
+                } else if (flipProgress <= 1.2) {
+                    if (isFinale) {
+                        isFinale = false;
+                        progress = 0;
+                        hasStarted = false;
+                        illusionBreak = 0;
+                        
+                        orbitsData.forEach(o => {
+                            const t_ = Date.now() * o.speed;
+                            o.sprite.position.set(o.originalRadius * Math.cos(t_), o.originalY, o.originalRadius * Math.sin(t_));
+                            o.sprite.material.opacity = 0; 
+                        });
+
+                        planetGroup.visible = false;
+                        guideLines.visible = false;
+                        
+                        const startPos = camCurve.getPointAt(0);
+                        camera.position.copy(startPos);
+                        camera.lookAt(0, 0, -40);
+                        
+                        // Kvadratėliai parodomi apversti
+                        planes.forEach(p => { 
+                            p.visible = true; 
+                            p.rotation.set(0, Math.PI, 0); 
+                        });
+                    }
+                    
+                    let flipT = (flipProgress - 0.3) / 0.9; 
+                    planes.forEach((p, i) => {
+                        let delay = i * 0.06; 
+                        let duration = 0.4;
+                        let localT = Math.max(0, Math.min(1, (flipT - delay) / duration));
+                        
+                        let easeT = 1 - Math.pow(1 - localT, 3);
+                        p.rotation.y = (1.0 - easeT) * Math.PI; 
+                        
+                        let scalePop = 1.0 + Math.sin(localT * Math.PI) * 0.15;
+                        p.scale.set(scalePop, scalePop, scalePop);
+                    });
+
+                } else {
+                    isTransitioning = false;
+                    flipProgress = 0;
+                    planetGroup.visible = true; 
+                    planetGroup.scale.set(1, 1, 1);
+                    guideLines.scale.set(1, 1, 1);
+                    
+                    planes.forEach(p => {
+                        p.quaternion.copy(p.userData.originalRot);
+                        p.scale.set(1, 1, 1);
+                    });
+                    
+                    document.getElementById('back-btn').style.opacity = '1';
+                    
+                    const uiBar = document.getElementById('ui-bar');
+                    if (uiBar) { 
+                        uiBar.style.opacity = '1'; 
+                        uiBar.style.transform = 'translate(-50%, 0)'; 
+                        // ČIA ATSTATOME TEKSTĄ GRĮŽUS I PRADŽIĄ
+                        document.getElementById('ui-hint-text').innerHTML = "Laikykite <span class=\"ui-key\">W</span> pirmyn (+<span class=\"ui-key\">SHIFT</span>) / <span class=\"ui-key\">S</span> atgal";
+                    }
+                    
+                    orbitsData.forEach(o => {
+                        o.sprite.userData.isLocked = false;
+                        o.group.children[0].visible = true; 
+                        o.trackLine.visible = false;
+                        o.glowSprite.visible = false;
+                        if (o.hitbox) o.hitbox.visible = false;
+                        
+                        const scale = 2000 + Math.random() * 4000;
+                        o.sprite.scale.set(scale, scale, 1);
+                    });
+                    guideLines.children.forEach(l => l.material.opacity = 0);
+                }
+                composer.render();
+                return; 
+            }
+
+            if (progress >= 0.998 && !isFinale && !isReturning && !isTransitioning) {
+                isFinale = true;
+                isMovingForward = false;
+                isSprinting = false;
+                
+                document.getElementById('back-btn').style.opacity = '0';
+                
+                const uiBar = document.getElementById('ui-bar');
+                if (uiBar) { 
+                    document.getElementById('ui-hint-text').innerHTML = "Dėlionė: vilkite planetas į Aukso pjūvio vietas";
+                }
+
+                planetGroup.rotation.set(0, 0, 0);
+                planetGroup.position.set(0, 0, -6000); 
+                planetGroup.visible = true;
+
+                const localZ = (camera.position.z - finaleDist) - planetGroup.position.z;
+                
+                guideLines.position.set(0, 0, camera.position.z - finaleDist);
+                guideLines.visible = true;
+                guideLines.children.forEach(l => {
+                    l.material.opacity = 0; 
+                    l.userData.flash = 0;
+                });
+
+                const limitX = (visH_finale * camera.aspect * GLOBAL_SCALE) * 0.35; 
+
+                orbitsData.forEach((o, i) => {
+                    const side = i % 2 === 0 ? 1 : -1;
+                    const startX = side * limitX + (Math.random() - 0.5) * (limitX * 0.2); 
+
+                    o.sprite.position.set(startX, o.sprite.userData.targetY, localZ);
+                    o.sprite.scale.set(o.sprite.userData.targetSize, o.sprite.userData.targetSize, 1);
+                    o.group.children[0].visible = false; 
+
+                    o.glowSprite.position.set(startX, o.sprite.userData.targetY, localZ - 2);
+                    o.glowSprite.scale.set(o.sprite.userData.targetSize * 1.3, o.sprite.userData.targetSize * 1.3, 1);
+                    o.glowSprite.visible = false;
+                    o.glowSprite.material.opacity = 0;
+
+                    o.trackLine.position.set(0, o.sprite.userData.targetY, localZ - 1);
+                    o.trackLine.visible = true;
+                    o.trackLine.material.opacity = 0.05; 
+                    o.trackLine.material.color.setHex(0xffffff);
+                });
+            }
+
+            if (isFinale) {
+                bokehPass.uniforms.aperture.value = THREE.MathUtils.lerp(bokehPass.uniforms.aperture.value, 0, 0.1);
+                if (bokehPass.uniforms.aperture.value < 0.000001) {
+                    bokehPass.enabled = false;
+                } else {
+                    bokehPass.enabled = true; 
+                }
+
+                if (!isDragging) {
+                    camera.position.x += (currentMouseX * 50 - camera.position.x) * 0.05;
+                    camera.position.y += (currentMouseY * 50 - camera.position.y) * 0.05;
+                }
+                camera.lookAt(camera.position.x, camera.position.y, camera.position.z - 100);
+                
+                spaceMaterials.forEach(item => { item.mat.opacity = 1 * item.maxOp; });
+                starField.rotation.y += 0.0002;
+
+                const allLocked = orbitsData.every(o => o.sprite.userData.isLocked);
+
+                guideLines.children.forEach(l => {
+                    if (allLocked) {
+                        l.material.opacity = THREE.MathUtils.lerp(l.material.opacity, 0.8, 0.05);
+                    } else {
+                        if (l.userData.flash > 0) {
+                            l.material.opacity = l.userData.flash;
+                            l.userData.flash -= 0.02; 
+                        } else {
+                            l.material.opacity = 0;
+                        }
+                    }
+                });
+
+                orbitsData.forEach((o) => {
+                    if (o.sprite.userData.isAnimatingToTarget) {
+                        o.sprite.position.x = THREE.MathUtils.lerp(o.sprite.position.x, o.sprite.userData.targetX, 0.1);
+                        o.glowSprite.position.x = o.sprite.position.x;
+                        
+                        o.glowSprite.visible = true;
+                        o.glowSprite.material.opacity = THREE.MathUtils.lerp(o.glowSprite.material.opacity, 0.7, 0.05);
+
+                        if (Math.abs(o.sprite.position.x - o.sprite.userData.targetX) < 1) {
+                            o.sprite.position.x = o.sprite.userData.targetX;
+                            o.glowSprite.position.x = o.sprite.userData.targetX;
+                            o.sprite.userData.isAnimatingToTarget = false;
+                        }
+                    }
+                });
+
+            } else {
+                bokehPass.enabled = true; 
+
+                if (hasStarted && !isReturning) { if (illusionBreak < 1) illusionBreak += 0.015; } 
+                else { if (illusionBreak > 0) { illusionBreak -= 0.015; if (illusionBreak < 0) illusionBreak = 0; } }
+
+                spiralLine.material.opacity = illusionBreak * 0.4;
+                floorLine.material.opacity = illusionBreak * 0.8;
+                document.getElementById('vignette').style.opacity = illusionBreak;
+                flatSpiralLine.material.opacity = 1 - illusionBreak;
+                spaceMaterials.forEach(item => { item.mat.opacity = illusionBreak * item.maxOp; });
+
+                bokehPass.uniforms.focus.value = 40; 
+                bokehPass.uniforms.aperture.value = 0.00003 * illusionBreak;
+
+                // Padidintas judėjimo greitis (Sprint)
+                let moveSpeed = isSprinting ? 0.0004 : 0.0001;
+                let waveSpeed = isSprinting ? 0.0016 : 0.0004;
+
+                if (isMovingForward && progress < 0.999 && !isReturning) progress += moveSpeed + (waveSpeed) * Math.sin(progress * Math.PI);
+                else if (isMovingBackward && progress > 0 && !isReturning) progress -= moveSpeed + (waveSpeed) * Math.sin(progress * Math.PI);
+
+                if (progress <= 0 && hasStarted) {
+                    progress = 0; hasStarted = false; 
+                }
+
+                currentMouseX += (targetMouseX - currentMouseX) * 0.05;
+                currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+
+                const currentPos = camCurve.getPointAt(progress);
+                
+                if (illusionBreak > 0) { 
+                    starField.rotation.y += 0.0006; 
+                    nebulaGroup.rotation.y -= 0.00006;
+                    nebulaGroup.rotation.z += 0.00015;
+                    planetGroup.rotation.y += 0.00003; 
+
+                    const pFactor = 150 * illusionBreak;
+                    planetGroup.position.x += (currentMouseX * pFactor - planetGroup.position.x) * 0.02;
+                    planetGroup.position.y += (currentMouseY * pFactor - planetGroup.position.y) * 0.02;
+
+                    orbitsData.forEach(o => {
+                        const t_ = Date.now() * o.speed;
+                        o.sprite.position.x = o.originalRadius * Math.cos(t_);
+                        o.sprite.position.z = o.originalRadius * Math.sin(t_);
+                    });
+
+                    const positions = dustField.geometry.attributes.position.array;
+                    const currentSpeed = (isMovingForward && !isReturning) ? (isSprinting ? 160 : 40) : 0.5; 
+
+                    for (let i = 0; i < dustCount; i++) {
+                        positions[i * 3] += particleDirection.x * currentSpeed;
+                        positions[i * 3 + 1] += particleDirection.y * currentSpeed;
+                        positions[i * 3 + 2] += particleDirection.z * currentSpeed;
+
+                        const dx = positions[i * 3] - camera.position.x;
+                        const dy = positions[i * 3 + 1] - camera.position.y;
+                        const dz = positions[i * 3 + 2] - camera.position.z;
+
+                        if (dz > 100) {
+                            positions[i * 3 + 2] = camera.position.z - 6000 - Math.random() * 2000; 
+                            positions[i * 3] = camera.position.x + (Math.random() - 0.5) * 3000;
+                            positions[i * 3 + 1] = camera.position.y + (Math.random() - 0.5) * 3000;
+                        }
+                        
+                        if (dx > 1500) positions[i * 3] -= 3000;
+                        if (dx < -1500) positions[i * 3] += 3000;
+                        if (dy > 1500) positions[i * 3 + 1] -= 3000;
+                        if (dy < -1500) positions[i * 3 + 1] += 3000;
+                    }
+                    dustField.geometry.attributes.position.needsUpdate = true;
+
+                } else {
+                    planetGroup.position.x += (0 - planetGroup.position.x) * 0.05;
+                    planetGroup.position.y += (0 - planetGroup.position.y) * 0.05;
+                }
+
+                camera.position.copy(currentPos);
+                
+                const targetLook = new THREE.Vector3(currentPos.x + (currentMouseX * 50), currentPos.y + (currentMouseY * 30), currentPos.z - 40);
+                const straightLook = new THREE.Vector3(currentPos.x, currentPos.y, currentPos.z - 40);
+                const lookWeight = Math.min(progress * 20, 1.0); 
+                currentLookTarget.copy(straightLook).lerp(targetLook, lookWeight);
+                camera.lookAt(currentLookTarget);
+
+                let isHovering = false;
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(planes);
+                
+                planes.forEach(plane => { 
+                    plane.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1); 
+                    if(plane.userData.glowPlane) {
+                        plane.userData.glowPlane.material.opacity = THREE.MathUtils.lerp(plane.userData.glowPlane.material.opacity, 0, 0.1);
+                        if(plane.userData.glowPlane.material.opacity < 0.05) {
+                            plane.userData.glowPlane.visible = false;
+                        }
+                    }
+                });
+
+                if (intersects.length > 0 && illusionBreak > 0.5 && !isReturning) {
+                    const hit = intersects[0].object;
+                    hit.scale.lerp(new THREE.Vector3(1.15, 1.15, 1.15), 0.2);
+                    if(hit.userData.glowPlane) {
+                        hit.userData.glowPlane.visible = true; 
+                        hit.userData.glowPlane.material.opacity = THREE.MathUtils.lerp(hit.userData.glowPlane.material.opacity, 0.8, 0.15);
+                    }
+                    isHovering = true;
+                    
+                    if (lastHoveredPlane !== hit) {
+                        if (audioStarted && hoverSound.buffer) {
+                            if (hoverSound.isPlaying) hoverSound.stop(); 
+                            hoverSound.play();
+                        }
+                        lastHoveredPlane = hit;
+                    }
+                } else {
+                    lastHoveredPlane = null; 
+                }
+
+                document.body.style.cursor = isHovering ? 'pointer' : 'default';
+
+                if (lookWeight > 0.1) {
+                    planes.forEach(plane => {
+                        if (plane.position.z < camera.position.z + 30) {
+                            const dummy = new THREE.Object3D();
+                            dummy.position.copy(plane.position);
+                            dummy.lookAt(camera.position);
+                            plane.quaternion.slerp(dummy.quaternion, 0.04);
+                        }
+                    });
+                } else {
+                    planes.forEach(plane => { plane.quaternion.slerp(plane.userData.originalRot, 0.05); });
+                }
+            }
+            composer.render();
+        }
+        animate();
+        
+        window.addEventListener('click', (event) => {
+            if (isReturning || isFinale || isTransitioning) return; 
+            if (event.target.closest('#ui-bar') || event.target.closest('#back-btn') || event.target.closest('#lightbox')) return;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(planes);
+            if (intersects.length > 0 && illusionBreak > 0.5) {
+                const hit = intersects[0].object;
+                
+                if (audioStarted && hoverSound.buffer) {
+                    if (hoverSound.isPlaying) hoverSound.stop();
+                    hoverSound.play();
+                }
+
+                document.getElementById('lightbox-img').src = hit.userData.imgPath;
+                document.getElementById('lightbox-title').innerText = hit.userData.title;
+                document.getElementById('lightbox-desc').innerText = hit.userData.desc;
+                const lb = document.getElementById('lightbox');
+                lb.style.display = 'flex';
+                setTimeout(() => lb.style.opacity = '1', 10);
+            }
+        });
+
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox' || e.target.id === 'lightbox-close') {
+                const lb = document.getElementById('lightbox');
+                lb.style.opacity = '0';
+                setTimeout(() => { lb.style.display = 'none'; document.getElementById('lightbox-img').src = ''; }, 400); 
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight); 
+        });
+    </script>
+</body>
+</html>
