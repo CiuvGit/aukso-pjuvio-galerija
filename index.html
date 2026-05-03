@@ -51,7 +51,6 @@
             pointer-events: none; z-index: 99;
         }
 
-        /* INITIAL CLICK SCREEN */
         #init-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -63,7 +62,6 @@
             letter-spacing: 4px; text-shadow: var(--term-glow); 
         }
 
-        /* BOOT SCREEN STYLES (SEVASTOLINK STYLE) */
         #boot-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -130,11 +128,10 @@
             animation: blink 1.5s infinite;
         }
 
-        /* PAGRINDINĖ SISTEMA */
+        
         #container {
             width: 1280px; 
             height: 760px; 
-            /* max-width ir max-height pašalinti, naudojame JavaScript scale */
             display: flex; flex-direction: column; position: relative; z-index: 10;
             opacity: 0; filter: blur(10px); 
             transform-origin: center center; display: none;
@@ -421,16 +418,16 @@
                     </div>
                 </div>
                 <div class="phi-display" id="phi-display">0.0000000</div>
-                <button id="init-btn">[ ATKURTI HARMONIJĄ IR INICIJUOTI 3D ]</button>
+                <button id="init-btn">[ ATKURTI PHI ]</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- ADAPTYVUS MASTELIO KEITIMAS ---
+        
         function resizeContainer() {
             const container = document.getElementById('container');
-            // Tikriname, ar konteineris apskritai egzistuoja ir jau yra rodomas (ne 'none')
+            
             if (container && container.style.display !== 'none') {
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
@@ -438,18 +435,18 @@
                 const baseWidth = 1280;
                 const baseHeight = 760;
                 
-                // Leidžiame 2% paddingo nuo kraštų
+                
                 const scaleX = (windowWidth * 0.98) / baseWidth;
                 const scaleY = (windowHeight * 0.98) / baseHeight;
                 
                 let scale = Math.min(scaleX, scaleY);
                 
-                // Pritaikome apskaičiuotą mastelį
+                
                 container.style.transform = `scale(${scale})`;
             }
         }
 
-        // Stebime lango pasikeitimus, kad visada adaptuotumėmės
+        
         window.addEventListener('resize', resizeContainer);
 
         // --- AUDIO SISTEMA ---
@@ -512,7 +509,7 @@
         }
 
         function initAmbient() {
-            if(ambientGain) return; // Kad neinicijuotume dukart
+            if(ambientGain) return; 
             ambientGain = audioCtx.createGain(); 
             ambientGain.gain.value = 0.03; 
             ambientGain.connect(audioCtx.destination);
@@ -622,7 +619,7 @@
             const ui = document.getElementById('container'); 
             ui.style.display = 'flex'; 
             
-            // PRIKABINTA VAIZDO ADAPTACIJOS FUNKCIJA
+            
             resizeContainer();
             
             playPowerOn();
@@ -640,7 +637,7 @@
             document.getElementById('clock').innerText = new Date().toISOString().split('T')[1].split('.')[0]; 
         }, 1000);
 
-        // --- VALDYMO LOGIKA IR MODULIAI ---
+        
         const requiredModules = ['nav', 'radar', 'data', 'bio', 'core', 'fractal'];
         const visited = new Set(['nav']);
         let currentView = 'nav';
@@ -671,7 +668,7 @@
             document.getElementById('mod-count').innerText = `${count}/6`;
         }
 
-        // --- 01 NAV ---
+        //01
         const cNav = document.getElementById('canvas-nav'); 
         const ctxNav = cNav.getContext('2d');
         
@@ -788,7 +785,7 @@
         } 
         drawNav();
 
-        // --- 02 RADAR ---
+        //02 
         const cRadar = document.getElementById('canvas-radar'); 
         const ctxRadar = cRadar.getContext('2d'); 
         
@@ -969,7 +966,7 @@
         } 
         drawRadar();
 
-        // --- 03 DATA ---
+        //03
         const hexEl = document.getElementById('hex-container'); 
         const exactPhiSequence = "16180339887498948482045868343656381177203091798057628621354486227052604628189024497072072041893911374847540880753868917521266338622235369317931800607667263544333890865959395829056383226613199282902678806752087668925017116962070322210432162695486262963136144381497587012203408058879544547492461856953648644492410443207713449470495658467885098743394422125448770664780915884607499887124007652170575179788341662562494075890697040002812104276217711177780531531714101170466659914669798731761356006708748071013179523689427521948435305678300228785699782977834784587822891109762500302696156170025046433824377648610283831268330372429267526311653392473167111211588186385133162038400522216579128597520063125338048601662993187212457223049195325785194098936087522584180496155609388147573629472314227749440612662036729575510619215053229740520690226462729971842858485290623253738096350259837942777174635677028329683938459635729705353180800085449704632822471694709569766941199395292305886617300301490212726487539525413359670030807662598007622839213897368297724128537549439691316521921387600862040984851307994464875955627763";
         let dataLines = []; 
@@ -1064,7 +1061,7 @@
             }
         }, 1000);
         
-        // --- 04 BIOSIGN ---
+        //04
         const cBio = document.getElementById('canvas-bio'); 
         const ctxBio = cBio.getContext('2d'); 
         
@@ -1187,7 +1184,7 @@
         } 
         drawBio();
         
-        // --- 05 CORE ---
+        //05 
         const cCore = document.getElementById('canvas-core'); 
         const ctxCore = cCore.getContext('2d'); 
         let coreTime = 0;
@@ -1317,7 +1314,7 @@
             
             const rect = cFrac.getBoundingClientRect();
             
-            // Užtikriname, kad koordinatės teisingai atitiktų canvas vidinę rezoliuciją
+            
             const scaleX = cFrac.width / rect.width;
             const scaleY = cFrac.height / rect.height;
             const mx = (e.clientX - rect.left) * scaleX;
@@ -1329,8 +1326,7 @@
             const offsetX = (cFrac.width - pW * scale) / 2;
             const offsetY = (cFrac.height - pH * scale) / 2;
             
-            // Tikriname ATBULINE TVARKA (nuo mažiausio bloko iki didžiausio), 
-            // ir naudojame `< bx + bs` kad išvengtume rėmelių dubliavimosi.
+
             for(let i = fracBoxes.length - 1; i >= 0; i--) {
                 let b = fracBoxes[i];
                 let bx = offsetX + b.x * scale;
@@ -1341,7 +1337,7 @@
                     b.current = (b.current + 1) % 4;
                     playBeep(400 + b.current * 100, 'square', 0.05, 0.02);
                     checkFractal();
-                    break; // Suradome mažesnį bloką, nutraukiame ciklą!
+                    break;
                 }
             }
         });
@@ -1411,7 +1407,7 @@
         }
         drawFractal();
 
-        // --- TERMINALO TEKSTAS IR PROGRESSIVE PHI KALIBRACIJA ---
+        // terminalas
         const consoleLines = [
             "> KRAUNAMAS BAKALAURO DARBO MODULIS...",
             "> TEMA: AUKSO PJŪVIO TAIKYMAS INTERNETO MENE.",
@@ -1509,11 +1505,11 @@
             }
         }
 
-        // --- PERĖJIMAS Į GALERIJĄ ---
+        // perejimas
         document.getElementById('init-btn').addEventListener('click', function() {
             playPowerDown();
             const container = document.getElementById('container');
-            container.classList.remove('tv-on'); // Nuimame įjungimo klasę, kad išjungimas veiktų
+            container.classList.remove('tv-on');
             container.classList.add('tv-off');
             
             setTimeout(() => { window.location.href = 'galerija.html'; }, 700);

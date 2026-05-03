@@ -2,7 +2,7 @@
 <html lang="lt">
 <head>
     <meta charset="UTF-8">
-    <title>Atvirkštinio Aukso Pjūvio 3D Galerija</title>
+    <title>Aukso Pjūvio 3D Galerija</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -32,10 +32,9 @@
 
         canvas {
             position: relative;
-            z-index: 5; /* Drobė dabar yra virš fono radarų, bet po UI */
+            z-index: 5;
         }
 
-        /* FONO DEKORACIJOS (PO 3D PIEŠINIAIS) */
         #bg-decorations {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 1; /* Svarbu: po canvas */
@@ -46,7 +45,7 @@
         .hud-crosshair-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(74, 246, 38, 0.3), transparent); }
         .hud-center-target { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70vw; height: 70vh; border: 1px dashed rgba(74, 246, 38, 0.15); border-radius: 50%; box-shadow: inset 0 0 50px rgba(74, 246, 38, 0.05); }
 
-        /* PRADINIS CRT FILTRAS */
+        /*CRT */
         #initial-crt {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
@@ -56,7 +55,6 @@
             transition: opacity 1.5s ease;
         }
 
-        /* PRADINIO EKRANO GYVOS DEKORACIJOS (VIRŠ 3D PIEŠINIŲ) */
         #start-decorations {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 8001;
@@ -121,7 +119,7 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* PAPILDOMI 2D VIZUALAI */
+        /* extra vizualai */
         .anomaly-marker { position: absolute; color: rgba(255, 50, 50, 0.8); font-size: 0.75rem; border: 1px dotted rgba(255, 50, 50, 0.5); padding: 4px 8px; background: rgba(50, 0, 0, 0.4); animation: blinker 1.5s linear infinite; pointer-events: none; text-shadow: 0 0 5px red; }
         .anomaly-marker.safe { color: var(--term-color); border-color: var(--term-dim); background: rgba(0, 15, 0, 0.4); text-shadow: var(--term-glow); }
         
@@ -199,7 +197,7 @@
         #vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(60, 15, 120, 0.35) 100%); opacity: 0; z-index: 5; }
         #white-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: #ffffff; opacity: 0; z-index: 9990; transition: opacity 3s ease-in-out; }
 
-        /* UI AESTHETICS - TERMINAL STYLE */
+        /* UI */
         #back-btn {
             position: absolute; top: 30px; left: 30px; color: var(--term-color); text-decoration: none; font-size: 0.9rem; text-transform: uppercase;
             letter-spacing: 2px; padding: 10px 20px; border: 1px solid var(--term-color); background: rgba(2, 5, 2, 0.8); z-index: 9000; transition: all 0.3s ease; cursor: pointer;
@@ -217,13 +215,12 @@
         .ui-key { background: rgba(74, 246, 38, 0.2); padding: 4px 10px; border: 1px solid var(--term-color); color: #fff; margin: 0 4px; }
         .ui-hint { letter-spacing: 1px; }
 
-        /* PABAIGOS PUZLĖS HUD */
+        /* PUZL HUD */
         #puzzle-hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; z-index: 9000; transition: opacity 1.5s ease; }
         #puzzle-border { position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px solid var(--term-color); box-shadow: inset 0 0 50px rgba(74, 246, 38, 0.2), 0 0 30px rgba(74, 246, 38, 0.3); }
         #puzzle-text { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); text-align: center; color: var(--term-color); font-size: 1.2rem; letter-spacing: 4px; text-shadow: var(--term-glow); }
         .hud-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)); background-size: 100% 3px, 3px 100%; opacity: 0.8; }
 
-        /* LIGHTBOX */
         #lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 5, 2, 0.95); z-index: 10000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s ease; backdrop-filter: blur(10px); }
         #lightbox-close { position: absolute; top: 2.618rem; right: 4.236rem; color: var(--term-color); font-size: 2.618rem; cursor: pointer; user-select: none; transition: all 0.3s ease; z-index: 1001; }
         #lightbox-close:hover { color: #fff; transform: scale(1.1); text-shadow: var(--term-glow); }
@@ -451,7 +448,7 @@
             }
         }
 
-        // Muzika paleidžiama tik judant į priekį, mygtukų paspaudimai ištrinti.
+        // muzikos kontrole
         document.getElementById('vol-slider').addEventListener('input', function(e) {
             const v = parseFloat(e.target.value);
             if (backgroundSound && backgroundSound.buffer) {
@@ -672,7 +669,6 @@
         const floorLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(new THREE.CatmullRomCurve3(floorPoints).getPoints(500)), new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0, depthWrite: false }));
         scene.add(floorLine);
 
-        // MAŽAS PULSUOJANTIS PABAIGOS INDIKATORIUS (TAŠKIUKAS TOLIAU)
         const endIndicator = new THREE.Group();
         
         const dotGeo = new THREE.CircleGeometry(1.5, 16); 
@@ -686,7 +682,7 @@
         endIndicator.add(dotMesh); 
         endIndicator.add(endGlowSprite);
         
-        const endZ = -lastZ - 150; // Nustumtas toliau į pabaigą (buvo +100)
+        const endZ = -lastZ - 150;
         endIndicator.position.set(endZ * slopeX, endZ * slopeY, endZ); 
         endIndicator.lookAt(endZ * slopeX, endZ * slopeY, endZ + 10);
         endIndicator.visible = true;
@@ -792,7 +788,6 @@
             isDragging = false; draggedPlanet = null; draggedPlanetData = null; document.body.style.cursor = 'default';
         });
 
-        // MUZIKA STARTUOJA TIK PASPAUDUS W PIRMĄ KARTĄ
         window.addEventListener('keydown', (e) => {
             if(isFinale || isTransitioning) return; 
             const key = e.key.toLowerCase();
@@ -821,7 +816,7 @@
         let currentLookTarget = new THREE.Vector3(0, 0, -10);
         const particleDirection = new THREE.Vector3(slopeX, slopeY, 1).normalize();
 
-        // START EKRANO DEKORACIJŲ LOGIKA
+        
         const phiStreamEl = document.getElementById('phi-stream-data');
         let phiString = "1618033988749894848204586834365638117720309179805762862135448622705260462818902449707207204189391137484754088075386891752126633862223536931793180060766726354433389086595";
         
@@ -870,7 +865,7 @@
                 spinner.innerText = chars[Math.floor(Date.now() / 100) % 4];
             }
 
-            // Hex data stream generator
+            
             const hexStreamEl = document.getElementById('hex-stream-data');
             if(hexStreamEl) {
                 let hex = "";
@@ -881,7 +876,7 @@
         }, 100);
 
         let logInterval = setInterval(() => {
-            if(hasStarted || progress > 0) return; // Sugrįžus vėl veiks
+            if(hasStarted || progress > 0) return;
             if(logEl) {
                 const newLine = document.createElement('div');
                 newLine.innerText = "> " + logMessages[Math.floor(Math.random() * logMessages.length)];
@@ -983,7 +978,7 @@
                 });
             }
 
-            // Animuojame pabaigos indikatorių (pulsuojantis taškiukas)
+            
             if (endIndicator) {
                 const endPulse = 1 + Math.sin(Date.now() * 0.005) * 0.4;
                 endIndicator.scale.set(endPulse, endPulse, endPulse);
