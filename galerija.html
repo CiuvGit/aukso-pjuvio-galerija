@@ -15,8 +15,13 @@
             --term-glow: 0 0 10px rgba(74, 246, 38, 0.4);
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         html { 
             background-color: #050505; 
+            font-size: clamp(9px, min(0.85vw, 1.4vh), 16px);
         }
         
         body { 
@@ -35,9 +40,14 @@
             z-index: 5;
         }
 
+        
+        .start-box, #back-btn, #ui-bar, .hud-corner, .vol-wrapper, .anomaly-marker {
+            pointer-events: auto;
+        }
+
         #bg-decorations {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none; z-index: 1; /* Svarbu: po canvas */
+            pointer-events: none; z-index: 1;
             transition: opacity 1.5s ease;
         }
 
@@ -45,7 +55,7 @@
         .hud-crosshair-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(74, 246, 38, 0.3), transparent); }
         .hud-center-target { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70vw; height: 70vh; border: 1px dashed rgba(74, 246, 38, 0.15); border-radius: 50%; box-shadow: inset 0 0 50px rgba(74, 246, 38, 0.05); }
 
-        /*CRT */
+        /* CRT */
         #initial-crt {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), 
@@ -65,10 +75,10 @@
             position: absolute; 
             border: 1px solid var(--term-color);
             background: rgba(0, 10, 0, 0.7); 
-            padding: 15px;
+            padding: 1em;
             box-shadow: 0 0 15px rgba(74, 246, 38, 0.1);
             color: var(--term-color); 
-            font-size: 0.8rem;
+            font-size: 0.8em;
             backdrop-filter: blur(5px);
             display: flex; 
             flex-direction: column;
@@ -76,20 +86,20 @@
         
         .start-box-title { 
             border-bottom: 1px dashed var(--term-color); 
-            padding-bottom: 5px; margin-bottom: 10px; 
+            padding-bottom: 0.3em; margin-bottom: 0.6em; 
             font-weight: bold; letter-spacing: 2px; 
             text-shadow: var(--term-glow);
         }
         
-        .sb-top-left { top: 90px; left: 30px; width: 280px; }
-        .sb-top-right { top: 30px; right: 30px; width: 350px; height: 200px; }
-        .sb-bottom-left { bottom: 90px; left: 30px; width: 280px; }
-        .sb-bottom-right { bottom: 90px; right: 30px; width: 350px; }
+        .sb-top-left { top: 5.625em; left: 1.875em; width: 17.5em; }
+        .sb-top-right { top: 1.875em; right: 1.875em; width: 21.875em; height: 12.5em; }
+        .sb-bottom-left { bottom: 5.625em; left: 1.875em; width: 17.5em; }
+        .sb-bottom-right { bottom: 5.625em; right: 1.875em; width: 21.875em; }
 
         .dyn-bar-container { 
-            width: 100%; height: 6px; 
+            width: 100%; height: 0.4em; 
             border: 1px solid var(--term-dim); 
-            margin-top: 5px; margin-bottom: 10px;
+            margin-top: 0.3em; margin-bottom: 0.6em;
             background: rgba(74, 246, 38, 0.05);
         }
         .dyn-bar-fill { 
@@ -120,15 +130,15 @@
         }
 
         /* extra vizualai */
-        .anomaly-marker { position: absolute; color: rgba(255, 50, 50, 0.8); font-size: 0.75rem; border: 1px dotted rgba(255, 50, 50, 0.5); padding: 4px 8px; background: rgba(50, 0, 0, 0.4); animation: blinker 1.5s linear infinite; pointer-events: none; text-shadow: 0 0 5px red; }
+        .anomaly-marker { position: absolute; color: rgba(255, 50, 50, 0.8); font-size: 0.75em; border: 1px dotted rgba(255, 50, 50, 0.5); padding: 0.25em 0.5em; background: rgba(50, 0, 0, 0.4); animation: blinker 1.5s linear infinite; pointer-events: none; text-shadow: 0 0 5px red; }
         .anomaly-marker.safe { color: var(--term-color); border-color: var(--term-dim); background: rgba(0, 15, 0, 0.4); text-shadow: var(--term-glow); }
         
         @keyframes blinker { 50% { opacity: 0.2; } }
         
-        #hex-stream-data { position: absolute; right: 20px; top: 40%; transform: translateY(-50%); width: 80px; color: rgba(74, 246, 38, 0.25); font-size: 0.65rem; line-height: 1.4; text-align: right; pointer-events: none; }
-        #phi-equation { position: absolute; left: 20px; top: 45%; color: rgba(74, 246, 38, 0.2); font-size: 0.8rem; pointer-events: none; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 4px;}
+        #hex-stream-data { position: absolute; right: 1.25em; top: 40%; transform: translateY(-50%); width: 5em; color: rgba(74, 246, 38, 0.25); font-size: 0.65em; line-height: 1.4; text-align: right; pointer-events: none; }
+        #phi-equation { position: absolute; left: 1.25em; top: 45%; color: rgba(74, 246, 38, 0.2); font-size: 0.8em; pointer-events: none; writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: 4px;}
 
-        /* JUDĖJIMO HUD */
+        
         #movement-hud {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 7000;
@@ -143,45 +153,45 @@
         }
 
         .hud-frame {
-            position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
+            position: absolute; top: 1em; left: 1em; right: 1em; bottom: 1em;
             border: 1px solid var(--term-color);
             pointer-events: none;
             box-shadow: inset 0 0 15px rgba(74, 246, 38, 0.05);
         }
 
         .hud-corner {
-            position: absolute; font-size: 0.75rem; letter-spacing: 2px;
+            position: absolute; font-size: 0.75em; letter-spacing: 2px;
             text-shadow: var(--term-glow); padding: 0;
         }
-        .top-left { top: 90px; left: 30px; } 
-        .top-right { top: 30px; right: 30px; text-align: right; }
-        .bottom-right { bottom: 30px; right: 30px; pointer-events: auto; } 
+        .top-left { top: 5.625em; left: 1.875em; } 
+        .top-right { top: 1.875em; right: 1.875em; text-align: right; }
+        .bottom-right { bottom: 1.875em; right: 1.875em; pointer-events: auto; } 
 
-        .fake-bar-container { width: 120px; height: 6px; border: 1px solid var(--term-dim); margin-top: 5px; position: relative; }
+        .fake-bar-container { width: 7.5em; height: 0.4em; border: 1px solid var(--term-dim); margin-top: 0.3em; position: relative; }
         .fake-bar-fill { height: 100%; background: var(--term-color); width: 0%; transition: width 0.1s; }
         .sys-spinner { display: inline-block; width: 12px; text-align: center; }
 
-        /* Volume Kontrolės Stiliai */
-        .vol-wrapper { display: flex; align-items: center; gap: 12px; }
+       
+        .vol-wrapper { display: flex; align-items: center; gap: 0.75em; }
         .vol-box { 
-            border: 1px solid var(--term-color); padding: 4px 12px; 
-            display: flex; align-items: center; gap: 15px; 
+            border: 1px solid var(--term-color); padding: 0.25em 0.75em; 
+            display: flex; align-items: center; gap: 1em; 
             background: rgba(0, 15, 0, 0.6); box-shadow: inset 0 0 10px rgba(74, 246, 38, 0.1);
         }
-        .vol-box span { font-size: 0.85rem; letter-spacing: 3px; }
+        .vol-box span { font-size: 0.85em; letter-spacing: 3px; }
         
-        input[type=range] { -webkit-appearance: none; background: transparent; width: 100px; cursor: pointer; }
+        input[type=range] { -webkit-appearance: none; background: transparent; width: 6.25em; cursor: pointer; }
         input[type=range]:focus { outline: none; }
-        input[type=range]::-webkit-slider-runnable-track { height: 6px; border: 1px solid var(--term-color); background: rgba(74, 246, 38, 0.15); }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 3px; background: #bafeb3; box-shadow: 0 0 8px var(--term-color); margin-top: -6px; border-radius: 0; }
-        input[type=range]::-moz-range-track { height: 6px; border: 1px solid var(--term-color); background: rgba(74, 246, 38, 0.15); }
-        input[type=range]::-moz-range-thumb { height: 16px; width: 3px; background: #bafeb3; box-shadow: 0 0 8px var(--term-color); border: none; border-radius: 0; }
+        input[type=range]::-webkit-slider-runnable-track { height: 0.4em; border: 1px solid var(--term-color); background: rgba(74, 246, 38, 0.15); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 1em; width: 0.2em; background: #bafeb3; box-shadow: 0 0 8px var(--term-color); margin-top: -0.35em; border-radius: 0; }
+        input[type=range]::-moz-range-track { height: 0.4em; border: 1px solid var(--term-color); background: rgba(74, 246, 38, 0.15); }
+        input[type=range]::-moz-range-thumb { height: 1em; width: 0.2em; background: #bafeb3; box-shadow: 0 0 8px var(--term-color); border: none; border-radius: 0; }
 
-        .sq-red { width: 18px; height: 18px; border: 1px solid #880000; background: #330000; box-shadow: 0 0 5px rgba(255,0,0,0.2); }
-        .sq-orange { width: 18px; height: 18px; border: 1px solid #ffcc00; background: repeating-linear-gradient(0deg, #ffaa00, #ffaa00 2px, #aa6600 2px, #aa6600 4px); box-shadow: 0 0 15px rgba(255, 170, 0, 0.6); }
+        .sq-red { width: 1.125em; height: 1.125em; border: 1px solid #880000; background: #330000; box-shadow: 0 0 5px rgba(255,0,0,0.2); }
+        .sq-orange { width: 1.125em; height: 1.125em; border: 1px solid #ffcc00; background: repeating-linear-gradient(0deg, #ffaa00, #ffaa00 2px, #aa6600 2px, #aa6600 4px); box-shadow: 0 0 15px rgba(255, 170, 0, 0.6); }
 
         #preloader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: var(--term-bg); 
             z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 1s ease-in-out;
@@ -194,20 +204,20 @@
         @keyframes rotateGolden { 0% { transform: rotate(0deg) scale(0.8); opacity: 0.5; } 50% { transform: rotate(180deg) scale(1); opacity: 1; box-shadow: 0 0 40px rgba(74, 246, 38, 0.6); } 100% { transform: rotate(360deg) scale(0.8); opacity: 0.5; } }
         #preloader-text { color: var(--term-color); margin-top: 30px; letter-spacing: 4px; font-size: 1.2rem; text-transform: uppercase; text-shadow: var(--term-glow); }
 
-        #vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(60, 15, 120, 0.35) 100%); opacity: 0; z-index: 5; }
-        #white-fade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: #ffffff; opacity: 0; z-index: 9990; transition: opacity 3s ease-in-out; }
+        #vignette { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(60, 15, 120, 0.35) 100%); opacity: 0; z-index: 5; }
+        #white-fade { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; background: #ffffff; opacity: 0; z-index: 9990; transition: opacity 3s ease-in-out; }
 
         /* UI */
         #back-btn {
-            position: absolute; top: 30px; left: 30px; color: var(--term-color); text-decoration: none; font-size: 0.9rem; text-transform: uppercase;
-            letter-spacing: 2px; padding: 10px 20px; border: 1px solid var(--term-color); background: rgba(2, 5, 2, 0.8); z-index: 9000; transition: all 0.3s ease; cursor: pointer;
+            position: fixed; top: 1.875em; left: 1.875em; color: var(--term-color); text-decoration: none; font-size: 0.9em; text-transform: uppercase;
+            letter-spacing: 2px; padding: 0.6em 1.2em; border: 1px solid var(--term-color); background: rgba(2, 5, 2, 0.8); z-index: 9000; transition: all 0.3s ease; cursor: pointer;
             box-shadow: 0 0 10px rgba(74, 246, 38, 0.2);
         }
         #back-btn:hover { background: var(--term-color); color: #000; box-shadow: 0 0 20px var(--term-color); }
 
         #ui-bar {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 20px; 
-            background: rgba(2, 5, 2, 0.8); border: 1px solid var(--term-color); padding: 10px 30px; color: var(--term-color); font-size: 0.85rem; z-index: 10; 
+            position: fixed; bottom: 1.875em; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 1.2em; 
+            background: rgba(2, 5, 2, 0.8); border: 1px solid var(--term-color); padding: 0.6em 1.8em; color: var(--term-color); font-size: 0.85em; z-index: 10; 
             transition: opacity 1.5s ease, transform 1.5s ease; box-shadow: 0 0 15px rgba(74, 246, 38, 0.2); text-transform: uppercase;
         }
         .ui-title { letter-spacing: 3px; font-weight: bold; color: #fff; text-shadow: var(--term-glow); }
@@ -216,12 +226,13 @@
         .ui-hint { letter-spacing: 1px; }
 
         /* PUZL HUD */
-        #puzzle-hud { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; z-index: 9000; transition: opacity 1.5s ease; }
-        #puzzle-border { position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px; border: 2px solid var(--term-color); box-shadow: inset 0 0 50px rgba(74, 246, 38, 0.2), 0 0 30px rgba(74, 246, 38, 0.3); }
-        #puzzle-text { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); text-align: center; color: var(--term-color); font-size: 1.2rem; letter-spacing: 4px; text-shadow: var(--term-glow); }
-        .hud-scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)); background-size: 100% 3px, 3px 100%; opacity: 0.8; }
+        #puzzle-hud { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; opacity: 0; z-index: 9000; transition: opacity 1.5s ease; }
+        #puzzle-border { position: absolute; top: 1em; left: 1em; right: 1em; bottom: 1em; border: 2px solid var(--term-color); box-shadow: inset 0 0 50px rgba(74, 246, 38, 0.2), 0 0 30px rgba(74, 246, 38, 0.3); }
+        #puzzle-text { position: absolute; top: 2.5em; left: 50%; transform: translateX(-50%); text-align: center; color: var(--term-color); font-size: 1.2em; letter-spacing: 4px; text-shadow: var(--term-glow); }
+        .hud-scanlines { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.04)); background-size: 100% 3px, 3px 100%; opacity: 0.8; }
 
-        #lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 5, 2, 0.95); z-index: 10000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s ease; backdrop-filter: blur(10px); }
+        
+        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(2, 5, 2, 0.95); z-index: 10000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s ease; backdrop-filter: blur(10px); }
         #lightbox-close { position: absolute; top: 2.618rem; right: 4.236rem; color: var(--term-color); font-size: 2.618rem; cursor: pointer; user-select: none; transition: all 0.3s ease; z-index: 1001; }
         #lightbox-close:hover { color: #fff; transform: scale(1.1); text-shadow: var(--term-glow); }
         #lightbox-content { display: flex; width: 90vw; height: calc(90vw / 1.61803); max-height: 85vh; max-width: calc(85vh * 1.61803); background: var(--term-bg); border: 1px solid var(--term-color); box-shadow: 0 0 40px rgba(74, 246, 38, 0.2); pointer-events: auto; }
@@ -283,19 +294,19 @@
         <div class="start-box sb-bottom-left">
             <div class="start-box-title">TARGET_TELEMETRY</div>
             <div style="display:flex; align-items:center; gap:15px;">
-                <div style="font-size: 2rem; color:var(--term-dim);" id="geo-spinner">|</div>
+                <div style="font-size: 2em; color:var(--term-dim);" id="geo-spinner">|</div>
                 <div>
                     X: <span id="tel-x" style="color:#fff;">000.00</span><br>
                     Y: <span id="tel-y" style="color:#fff;">000.00</span><br>
                     Z: <span id="tel-z" style="color:#fff;">000.00</span>
                 </div>
             </div>
-            <div style="color:var(--term-dim); font-size: 0.7rem; margin-top: 10px;">PHI_STREAM: <span style="color:#fff;">$\Phi$</span> 1.618...</div>
+            <div style="color:var(--term-dim); font-size: 0.7em; margin-top: 10px;">PHI_STREAM: <span style="color:#fff;">$\Phi$</span> 1.618...</div>
         </div>
 
         <div class="start-box sb-bottom-right">
             <div class="start-box-title">PHI_STREAM // DATA</div>
-            <div id="phi-stream-data" style="font-size: 0.7rem; color: var(--term-dim); word-break: break-all; line-height: 1.4; white-space: nowrap; overflow: hidden;">
+            <div id="phi-stream-data" style="font-size: 0.7em; color: var(--term-dim); word-break: break-all; line-height: 1.4; white-space: nowrap; overflow: hidden;">
                 1618033988749894848204586834365638117720309179805762862135448622705260462818902449707207204189391137484754088075386891752126633862223536931793180060766726354433389086595
             </div>
             <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
@@ -794,7 +805,7 @@
             
             if (key === 'w') {
                 isMovingForward = true;
-                initAudio(); // <--- Čia dabar paleidžiama muzika
+                initAudio();
             }
             if (key === 's') isMovingBackward = true; 
             if (key === 'shift') isSprint = true;
@@ -828,7 +839,7 @@
         ];
         
         let decorInterval = setInterval(() => {
-            if (hasStarted || progress > 0) return; // Leidžiame ciklui gyventi, bet praleidžiame, jei judame erdvėje
+            if (hasStarted || progress > 0) return; 
             
             // Phi Stream scroll
             phiString = phiString.substring(1) + phiString[0];
@@ -850,7 +861,7 @@
             if(txtCpu) txtCpu.innerText = Math.floor(cV) + '%';
             if(txtMem) txtMem.innerText = Math.floor(mV) + '%';
             
-            // Telemetry
+            
             const tX = document.getElementById('tel-x');
             const tY = document.getElementById('tel-y');
             const tZ = document.getElementById('tel-z');
@@ -858,7 +869,7 @@
             if(tY) tY.innerText = (Math.random() * 999).toFixed(2).padStart(6, '0');
             if(tZ) tZ.innerText = (Math.random() * 999).toFixed(2).padStart(6, '0');
             
-            // Spinner
+            
             const spinner = document.getElementById('geo-spinner');
             if(spinner) {
                 const chars = ['|', '/', '-', '\\'];
